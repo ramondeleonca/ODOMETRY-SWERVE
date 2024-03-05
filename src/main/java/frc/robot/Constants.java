@@ -16,9 +16,12 @@ import com.pathplanner.lib.util.PIDConstants;
 
 public final class Constants {
     public static final class SwerveDrive {
+        //! Gyroscope
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
 
-        public static final double kJoystickDeadband = 0.1;
+        //! Joystick
+        public static final double kDeadband = 0.1;
+        
         //! Physical model of the robot
         public static final class PhysicalModel {
             //! MAX DISPLACEMENT SPEED (and acceleration)
