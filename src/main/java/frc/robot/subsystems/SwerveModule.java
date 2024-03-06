@@ -9,6 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
@@ -133,12 +134,36 @@ public class SwerveModule extends SubsystemBase {
       return;
     }
 
-    state = SwerveModuleState.optimize(state, new Rotation2d());
+    state = SwerveModuleState.optimize(state, new Rotation2d(getTurningAngle()));
 
     this.targetState = state;
 
     driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
     turningPID.setReference(state.angle.getRadians(), ControlType.kPosition);
+  }
+
+  /**
+   * Gets the position of the module relative to the field
+   * @return
+   */
+  public SwerveModulePosition getPosition() {
+    return new SwerveModulePosition(this.driveEncoder.getPosition(), Rotation2d.fromRadians(this.getAbsoluteAngle().in(Radians)));
+  }
+
+  /**
+   * Gets the state of the module
+   * @return
+   */
+  public SwerveModuleState getTargetState() {
+    return this.targetState;
+  }
+
+  /**
+   * Gets the state of the module
+   * @return
+   */
+  public SwerveModuleState getState() {
+    return new SwerveModuleState(this.driveEncoder.getVelocity(), Rotation2d.fromRadians(this.getAbsoluteAngle().in(Radians)));
   }
 
   @Override
