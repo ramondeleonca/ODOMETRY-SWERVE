@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.ControlType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -71,8 +73,15 @@ public class SwerveModule extends SubsystemBase {
    * Gets the real, absolute position from the CANCoder
    * @return
    */
-  public Measure<Angle> getAbsoluteEncoderPosition() {
+  public Measure<Angle> getAbsoluteAngle() {
     return Rotations.of(absoluteEncoder.getAbsolutePosition().refresh().getValue()).times(this.options.absoluteEncoderInverted ? -1.0 : 1.0);
+  }
+
+  /**
+   * Gets expected position from the turning encoder
+   */
+  public Measure<Angle> getTurningAngle() {
+    return Radians.of(turningEncoder.getPosition() % (2 * Math.PI));
   }
 
   /**
@@ -86,7 +95,7 @@ public class SwerveModule extends SubsystemBase {
    * Resets the turn encoder (real wheel rotation)
    */
   public void resetTurningEncoder() {
-    this.turningEncoder.setPosition(getAbsoluteEncoderPosition().in(Radians));
+    this.turningEncoder.setPosition(getAbsoluteAngle().in(Radians));
   }
 
   /**
@@ -95,6 +104,41 @@ public class SwerveModule extends SubsystemBase {
   public void resetEncoders() {
     resetDriveEncoder();
     resetTurningEncoder();
+  }
+
+  /**
+   * Sets the state, optionally forcefully
+   * @param state
+   */
+  public void setState(SwerveModuleState state) {
+    setState(state, false);
+  }
+
+  /**
+   * Stops the module
+   */
+  public void stop() {
+    driveMotor.set(0);
+    turningMotor.set(0);
+  }
+
+  /**
+   * Sets the rotation and speed state of the module
+   * @param state
+   * @param force
+   */
+  public void setState(SwerveModuleState state, boolean force) {
+    if (Math.abs(state.speedMetersPerSecond) < 0.001 || force) {
+      stop();
+      return;
+    }
+
+    state = SwerveModuleState.optimize(state, new Rotation2d());
+
+    this.targetState = state;
+
+    driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
+    turningPID.setReference(state.angle.getRadians(), ControlType.kPosition);
   }
 
   @Override
