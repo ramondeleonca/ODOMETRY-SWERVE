@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Distance;
@@ -31,6 +30,13 @@ public final class Constants {
             //! MAX ROTATIONAL SPEED (and acceleration)
             public static final Measure<Velocity<Angle>> kMaxAngularSpeed = RadiansPerSecond.of(2.5 * (2 * Math.PI));
             public static final Measure<Velocity<Velocity<Angle>>> kMaxAngularAcceleration = RadiansPerSecond.per(Second).of(kMaxAngularSpeed.in(RadiansPerSecond));
+            
+            //! AUTONOMOUS 
+            public static final class Autonomous {
+                public static final PIDConstants kTranslatePIDConstants = new PIDConstants(0.1, 0.0, 0.0);
+                public static final PIDConstants kRotatePIDConstants = new PIDConstants(0.1, 0.0, 0.0);
+                public static final Measure<Velocity<Distance>> kMaxSpeedMetersPerSecond = PhysicalModel.kMaxSpeed.divide(10);
+            }
 
             // Drive wheel diameter
             public static final Measure<Distance> kWheelDiameter = Inches.of(4);
@@ -95,12 +101,5 @@ public final class Constants {
                 .setTurningMotorID(27)
                 .setName("Back Right");
         }
-    }
-
-    //! AUTONOMOUS 
-    public static final class Autonomous {
-        public static final PIDConstants kTranslatePIDConstants = new PIDConstants(0.00000000005, 0.0, 0.0);
-        public static final PIDConstants kRotatePIDConstants = new PIDConstants(0.1, 0.0, 0.0);
-        public static final Measure<Velocity<Distance>> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
     }
 }

@@ -3,12 +3,22 @@ package lib.team3526.control;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 
+/**
+ * A wrapper for CANSparkMax that only updates the controller if the value has changed.
+ */
 public class LazyCANSparkMax extends CANSparkMax {
-    public LazyCANSparkMax(int deviceID, MotorType type) {
+    public LazyCANSparkMax(int deviceID, MotorType type, boolean lazy) {
         super(deviceID, type);
-        // setPeriodicFramePeriod(PeriodicFrame.kStatus0, 10);
-        // setPeriodicFramePeriod(PeriodicFrame.kStatus1, 20);
-        // setPeriodicFramePeriod(PeriodicFrame.kStatus2, 30);
+
+        if (lazy) {
+            setPeriodicFramePeriod(PeriodicFrame.kStatus0, 10);
+            setPeriodicFramePeriod(PeriodicFrame.kStatus1, 20);
+            setPeriodicFramePeriod(PeriodicFrame.kStatus2, 30);
+        }
+    }
+
+    public LazyCANSparkMax(int deviceID, MotorType type) {
+        this(deviceID, type, false);
     }
 
     public void set(double value) {
