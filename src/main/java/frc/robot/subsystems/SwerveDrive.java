@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -34,6 +36,10 @@ public class SwerveDrive extends SubsystemBase {
     });
   }
 
+  /**
+   * Drives the robot using the given ChassisSpeeds.
+   * @param speeds
+   */
   public void drive(ChassisSpeeds speeds) {
     SwerveModuleState[] moduleStates = Constants.SwerveDrive.PhysicalModel.kDriveKinematics.toSwerveModuleStates(speeds);
     frontLeft.setState(moduleStates[0]);
@@ -42,19 +48,60 @@ public class SwerveDrive extends SubsystemBase {
     backRight.setState(moduleStates[3]);
   }
 
+  /**
+   * Drives the robot using the given xSpeed, ySpeed, and rotSpeed relative to the field.
+   * @param xSpeed
+   * @param ySpeed
+   * @param rotSpeed
+   */
   public void driveFieldRelative(double xSpeed, double ySpeed, double rotSpeed) {
     drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed, gyro.getRotation2d()));
   }
 
+  /**
+   * Drives the robot using the given xSpeed, ySpeed, and rotSpeed relative to the robot.
+   * @param xSpeed
+   * @param ySpeed
+   * @param rotSpeed
+   */
   public void driveRobotRelative(double xSpeed, double ySpeed, double rotSpeed) {
     drive(new ChassisSpeeds(xSpeed, ySpeed, rotSpeed));
   }
 
+  /**
+   * Stops the robot.
+   */
   public void stop() {
     frontLeft.stop();
     frontRight.stop();
     backLeft.stop();
     backRight.stop();
+  }
+
+  /**
+   * Returns the current REAL states of all four swerve modules.
+   * @return
+   */
+  public SwerveModuleState[] getStates() {
+    return new SwerveModuleState[]{
+      frontLeft.getState(),
+      frontRight.getState(),
+      backLeft.getState(),
+      backRight.getState()
+    };
+  }
+
+  /**
+   * Returns the current TARGET states of all four swerve modules.
+   * @return
+   */
+  public SwerveModuleState[] getTargetStates() {
+    return new SwerveModuleState[]{
+      frontLeft.getTargetState(),
+      frontRight.getTargetState(),
+      backLeft.getTargetState(),
+      backRight.getTargetState()
+    };
   }
 
   @Override
@@ -65,5 +112,9 @@ public class SwerveDrive extends SubsystemBase {
       backLeft.getPosition(),
       backRight.getPosition()
     });
+
+    Logger.recordOutput("SwerveDrive/Pose", odometry.getPoseMeters());
+    Logger.recordOutput("SwerveDrive/States", getStates());
+    Logger.recordOutput("SwerveDrive/TargetStates", getTargetStates());
   }
 }
